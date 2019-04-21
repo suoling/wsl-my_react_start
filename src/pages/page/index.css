@@ -1,0 +1,9 @@
+.page-box {
+    border: 1px solid red;
+    display: flex;
+    transform: all 1s;
+}
+
+.img-test {
+    height: 100px;
+}

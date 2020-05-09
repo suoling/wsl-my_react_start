@@ -26,3 +26,9 @@ export default connect(({ counter }) => counter, dispatch => ({
         dispatch(reset())
     }
 }))(Counter)
+
+// connect是什么呢？
+// react-redux提供了一个方法connect。
+// connect主要有两个参数，
+// 一个mapStateToProps,就是把redux的state，转为组件的Props，
+// 还有一个参数是mapDispatchToprops,把发射actions的方法，转为Props属性函数。

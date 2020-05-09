@@ -1,6 +1,9 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 import Loading from 'components/Loading'
+// 按需加载目前大致分为按路由和按组件。
+// 我们这里使用常用的按路由加载。
+// react-router4.0以上提供了react-loadable。
 import loadable from 'react-loadable'
 
 const Home = loadable({

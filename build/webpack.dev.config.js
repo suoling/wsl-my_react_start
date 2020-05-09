@@ -1,12 +1,32 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+// hash
+// 是跟整个项目的构建相关，只要项目里有文件更改，整个项目构建的hash值都会更改，并且全部文件都共用相同的hash值
+
+// chunkhash
+// 和hash不一样，它根据不同的入口文件(Entry)进行依赖文件解析、构建对应的chunk，生成对应的哈希值。
+
+// contenthash
+// 是针对文件内容级别的，只有你自己模块的内容变了，那么hash值才改变，所以我们可以通过contenthash解决上诉问题
+
+
 module.exports = {
     // 代码映射
     devtool: 'inline-source-map',
     // 入口
     entry: {
-        app: [path.join(__dirname, '../src/index.js')],
+        app: [
+            // @babel/polyfill可以让我们愉快的使用浏览器不兼容的es6、es7的API。
+            // 但是他有几个缺点：
+            // 一是我们只是用了几个API，它却整个的引入了
+            // 二是会污染全局
+            "@babel/polyfill",
+            path.join(__dirname, '../src/index.js')
+        ],
+        // 我们打包的文件里面包含了react,redux,react-router等等这些代码，
+        // 每次发布都要重新加载，其实没必要，我们可以将他们单独提取出来。
+        // 在webpack.dev.config.js中配置入口：
         // 提取公共模块代码
         vender: ['react', 'react-dom', 'react-router-dom', 'redux', 'react-redux']
     },
@@ -16,7 +36,7 @@ module.exports = {
         path: path.join(__dirname, '../dist'),
         filename: '[name].[hash].js',
         chunkFilename: '[name].[chunkhash].js',
-        publicPath : '/dist/'
+        // publicPath : '/dist/'
     },
     module: {
         rules: [
@@ -45,6 +65,8 @@ module.exports = {
                             localIdentName: '[local]--[hash:base64:5]'
                         }
                     },
+                    // PostCSS提供了Autoprefixer
+                    // 我们在写CSS的时候，需要加浏览器前缀的工作，它将帮我们完成
                     'postcss-loader'
                 ]
             },
@@ -65,7 +87,7 @@ module.exports = {
     devServer: {
         // contentBase: path.join(__dirname, '../dist'), // 允许访问指定目录下面的文件
         compress: true,  // gzip压缩
-        host: '127.0.0.1', // 允许ip访问
+        host: '0.0.0.0', // 允许ip访问
         hot:true, // 热更新
         historyApiFallback:true, // 解决启动后刷新404
         port: 8000, // 端口
@@ -78,6 +100,9 @@ module.exports = {
         },
     },
     resolve: {
+        // 看这里：切记名称不可声明成你引入的其他包名。
+        // 别名的会覆盖你的包名，导致你无法引用其他包。
+        // 栗子：redux、react等
         alias: {
             pages: path.join(__dirname, '../src/pages'),
             components: path.join(__dirname, '../src/components'),
@@ -88,10 +113,16 @@ module.exports = {
         }
     },
     plugins: [
+        // 每次启动都会使用这个html-webpack-plugin，
+        // webpack会自动将打包好的JS注入到这个index.html模板里面
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: path.join(__dirname, '../public/index.html')
         }),
+        // 我们看到source下只有js文件，但是实际上我们是有一个css文件的，
+        // 它被打包进入了js文件里面，现在我们将它提取出来。 
+        // 使用webpack的mini-css-extract-plugin插件
+
         // new MiniCssExtractPlugin({
         //     filename: '[name].[contenthash].css',
         //     chunkFilename: '[id].[contenthash].css'

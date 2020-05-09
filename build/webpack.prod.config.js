@@ -13,6 +13,13 @@ module.exports = {
         // 提取公共模块代码
         vender: ['react', 'react-dom', 'react-router-dom', 'redux', 'react-redux']
     },
+    // 开发环境(development)和生产环境(production)的构建目标差异很大。
+    // 在开发环境中，我们需要具有实时重新加载 或 热模块替换能力的 source map 和 localhost server。
+    // 在生产环境中，我们的目标则转向于关注更小的 bundle，更轻量的 source map，以及更优化的资源，以改善加载时间。
+
+
+    // 以前webpack使用uglifyjs-webpack-plugin来压缩文件，使我们打包出来的文件体积更小。
+    // 现在只需要配置mode即可自动使用开发环境的一些配置，包括JS压缩等等
     mode: 'production',
     output: {
         // 输出到dist目录，输出文件名为bundle.js
@@ -88,17 +95,22 @@ module.exports = {
         }
     },
     plugins: [
+        // 模版自动导入打包后的文件
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: path.join(__dirname, '../public/index.html')
         }),
+        // 抽取css
         new MiniCssExtractPlugin({
             filename: '[name].[contenthash].css',
             chunkFilename: '[id].[contenthash].css'
         }),
+        // css压缩
         new OptimizeCssAssetsPlugin(),
-        new CleanWebpackPlugin() // 每次打包前清空
+        // 打包清空
+        new CleanWebpackPlugin()
     ],
+
     // 这表示将选择哪些块进行优化。当提供一个字符串，有效值为all，async和initial。
     // 提供all可以特别强大，因为这意味着即使在异步和非异步块之间也可以共享块。
     optimization: {
